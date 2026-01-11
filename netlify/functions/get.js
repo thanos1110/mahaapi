@@ -1,7 +1,11 @@
 import { getStore } from "@netlify/blobs";
 
 export async function handler() {
-  const store = getStore("licenses");
+//  const store = getStore("licenses");
+const store = getStore("licenses", {
+  siteID: process.env.NETLIFY_SITE_ID,
+  token: process.env.NETLIFY_AUTH_TOKEN
+});
 
   const { blobs } = await store.list();
   const result = [];
