@@ -10,16 +10,30 @@ export default async function handler(request) {
   const {
     id,
     CompanyName,
+    Address,
+    Contact,
     LicenseKey,
     EndDate
   } = body || {};
 
-  if (!id || !CompanyName || !LicenseKey || !EndDate) {
+  // Validate required fields
+  if (
+    !id ||
+    !CompanyName ||
+    !Address ||
+    !Contact ||
+    !LicenseKey ||
+    !EndDate
+  ) {
     return new Response(
       JSON.stringify({
-        error: "id, CompanyName, LicenseKey and EndDate are required"
+        error:
+          "id, CompanyName, Address, Contact, LicenseKey and EndDate are required"
       }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      }
     );
   }
 
@@ -28,11 +42,13 @@ export default async function handler(request) {
   const dataToSave = {
     id,
     CompanyName,
+    Address,
+    Contact,
     LicenseKey,
     EndDate
   };
 
-  // LicenseKey is the Blob key
+  // Store using LicenseKey as unique key
   await store.set(LicenseKey, JSON.stringify(dataToSave));
 
   return new Response(
@@ -40,6 +56,9 @@ export default async function handler(request) {
       success: true,
       data: dataToSave
     }),
-    { status: 200, headers: { "Content-Type": "application/json" } }
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    }
   );
 }
