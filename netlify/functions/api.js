@@ -1,26 +1,11 @@
 import { getStore } from "@netlify/blobs";
 
-export async function handler(event) {
+export default async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: "Only POST allowed"
-    };
+    return { statusCode: 405, body: "POST only" };
   }
 
-  const body = JSON.parse(event.body || "{}");
-  const { LicenseKey, ExpiryDate } = body;
-
-  if (!LicenseKey || !ExpiryDate) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: "LicenseKey and ExpiryDate are required"
-      })
-    };
-  }
-
-  // IMPORTANT: no manual siteID / token in NEW project
+  const { LicenseKey, ExpiryDate } = JSON.parse(event.body || "{}");
   const store = getStore("licenses");
 
   await store.set(
@@ -34,10 +19,6 @@ export async function handler(event) {
 
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      success: true,
-      LicenseKey,
-      ExpiryDate
-    })
+    body: JSON.stringify({ success: true })
   };
 }
