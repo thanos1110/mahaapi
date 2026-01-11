@@ -4,10 +4,15 @@
 
 [[redirects]]
   from = "/update"
-  to = "/.netlify/functions/api"
+  to = "/.netlify/functions/update"
   status = 200
 
 [[redirects]]
   from = "/getall"
-  to = "/.netlify/functions/get"
+  to = "/.netlify/functions/get/getall"
+  status = 200
+
+[[redirects]]
+  from = "/get/*"
+  to = "/.netlify/functions/get/:splat"
   status = 200
