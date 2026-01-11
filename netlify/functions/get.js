@@ -1,17 +1,39 @@
 import { getStore } from "@netlify/blobs";
 
-export default async function handler() {
+export default async function handler(request) {
   const store = getStore("licenses");
-  const { blobs } = await store.list();
-  const result = [];
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split("/").filter(Boolean);
 
-  for (const item of blobs) {
-    const val = await store.get(item.key);
-    if (val) result.push(JSON.parse(val));
+  // /getall
+  if (pathParts[pathParts.length - 1] === "getall") {
+    const { blobs } = await store.list();
+    const result = [];
+
+    for (const item of blobs) {
+      const val = await store.get(item.key);
+      if (val) result.push(JSON.parse(val));
+    }
+
+    return new Response(
+      JSON.stringify(result),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   }
-  
-  return {
-    statusCode: 200,
-    body: JSON.stringify(result)
-  };
+
+  // /get/{LicenseKey}
+  const licenseKey = pathParts[pathParts.length - 1];
+  const value = await store.get(licenseKey);
+
+  if (!value) {
+    return new Response(
+      JSON.stringify({ error: "License not found" }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  return new Response(value, {
+    status: 200,
+    headers: { "Content-Type": "application/json" }
+  });
 }
