@@ -6,28 +6,40 @@ export default async function handler(request) {
   }
 
   const body = await request.json();
-  const { LicenseKey, ExpiryDate } = body || {};
 
-  if (!LicenseKey || !ExpiryDate) {
+  const {
+    id,
+    CompanyName,
+    LicenseKey,
+    EndDate
+  } = body || {};
+
+  if (!id || !CompanyName || !LicenseKey || !EndDate) {
     return new Response(
-      JSON.stringify({ error: "LicenseKey and ExpiryDate required" }),
+      JSON.stringify({
+        error: "id, CompanyName, LicenseKey and EndDate are required"
+      }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
   const store = getStore("licenses");
 
-  await store.set(
+  const dataToSave = {
+    id,
+    CompanyName,
     LicenseKey,
-    JSON.stringify({
-      LicenseKey,
-      ExpiryDate,
-      updatedAt: new Date().toISOString()
-    })
-  );
+    EndDate
+  };
+
+  // LicenseKey is the Blob key
+  await store.set(LicenseKey, JSON.stringify(dataToSave));
 
   return new Response(
-    JSON.stringify({ success: true }),
+    JSON.stringify({
+      success: true,
+      data: dataToSave
+    }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );
 }
